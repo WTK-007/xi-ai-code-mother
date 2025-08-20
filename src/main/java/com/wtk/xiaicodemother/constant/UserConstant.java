@@ -1,4 +1,4 @@
-package com.wtk.xiaicodemother.common;
+package com.wtk.xiaicodemother.constant;
 
 public interface UserConstant {
 

@@ -4,7 +4,7 @@ import com.mybatisflex.core.paginate.Page;
 import com.wtk.xiaicodemother.annotation.AuthCheck;
 import com.wtk.xiaicodemother.common.BaseResponse;
 import com.wtk.xiaicodemother.common.ResultUtils;
-import com.wtk.xiaicodemother.common.UserConstant;
+import com.wtk.xiaicodemother.constant.UserConstant;
 import com.wtk.xiaicodemother.exception.BusinessException;
 import com.wtk.xiaicodemother.exception.ErrorCode;
 import com.wtk.xiaicodemother.exception.ThrowUtils;

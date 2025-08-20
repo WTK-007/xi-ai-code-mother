@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.wtk.xiaicodemother.common.UserConstant.USER_LOGIN_STATE;
+import static com.wtk.xiaicodemother.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * 用户 服务层实现。
