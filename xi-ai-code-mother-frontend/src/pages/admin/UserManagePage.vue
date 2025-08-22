@@ -3,43 +3,48 @@
     <!-- 搜索表单 -->
     <a-form layout="inline" :model="searchParams" @finish="doSearch">
       <a-form-item label="账号">
-        <a-input v-model:value="searchParams.userAccount" placeholder="请输入账号" />
+        <a-input v-model:value="searchParams.userAccount" placeholder="输入账号" />
       </a-form-item>
       <a-form-item label="用户名">
-        <a-input v-model:value="searchParams.userName" placeholder="请输入账号" />
+        <a-input v-model:value="searchParams.userName" placeholder="输入用户名" />
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit">搜索</a-button>
       </a-form-item>
     </a-form>
+    <a-divider />
+    <!-- 表格 -->
+    <a-table
+      :columns="columns"
+      :data-source="data"
+      :pagination="pagination"
+      @change="doTableChange"
+    >
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.dataIndex === 'userAvatar'">
+          <a-image :src="record.userAvatar" :width="120" />
+        </template>
+        <template v-else-if="column.dataIndex === 'userRole'">
+          <div v-if="record.userRole === 'admin'">
+            <a-tag color="green">管理员</a-tag>
+          </div>
+          <div v-else>
+            <a-tag color="blue">普通用户</a-tag>
+          </div>
+        </template>
+        <template v-else-if="column.dataIndex === 'createTime'">
+          {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+        </template>
+        <template v-else-if="column.key === 'action'">
+          <a-button danger @click="doDelete(record.id)">删除</a-button>
+        </template>
+      </template>
+    </a-table>
   </div>
-  <a-divider/>
-  <!-- 表格 -->
-  <a-table :columns="columns" :data-source="data" :pagination="pagination" @change="doTableChange">
-    <template #bodyCell="{ column, record }">
-      <template v-if="column.dataIndex === 'userAvatar'">
-        <a-image :src="record.userAvatar" :width="120" />
-      </template>
-      <template v-else-if="column.dataIndex === 'userRole'">
-        <div v-if="record.userRole === 'admin'">
-          <a-tag color="green">管理员</a-tag>
-        </div>
-        <div v-else>
-          <a-tag color="blue">普通用户</a-tag>
-        </div>
-      </template>
-      <template v-else-if="column.dataIndex === 'createTime'">
-        {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss') }}
-      </template>
-      <template v-else-if="column.key === 'action'">
-        <a-button @click="doDelete(record.id)" danger>删除</a-button>
-      </template>
-    </template>
-  </a-table>
 </template>
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { deleteUser, listUserVoByPage } from '@/api/userController'
+import { deleteUser, listUserVoByPage } from '@/api/userController.ts'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 
@@ -85,19 +90,19 @@ const total = ref(0)
 // 搜索条件
 const searchParams = reactive<API.UserQueryRequest>({
   pageNum: 1,
-  pageSize: 2,
+  pageSize: 10,
 })
 
 // 获取数据
 const fetchData = async () => {
-  let res = await listUserVoByPage({
+  const res = await listUserVoByPage({
     ...searchParams,
   })
-  if (res.data.code === 0) {
+  if (res.data.data) {
     data.value = res.data.data.records ?? []
     total.value = res.data.data.totalRow ?? 0
   } else {
-    message.error('获取数据失败' + res.data.message)
+    message.error('获取数据失败，' + res.data.message)
   }
 }
 
@@ -112,21 +117,21 @@ const pagination = computed(() => {
   }
 })
 
-// 表格分页变化时操作
-const doTableChange = (page: any) => {
+// 表格分页变化时的操作
+const doTableChange = (page: { current: number; pageSize: number }) => {
   searchParams.pageNum = page.current
   searchParams.pageSize = page.pageSize
   fetchData()
 }
 
-// 搜索功能
+// 搜索数据
 const doSearch = () => {
   // 重置页码
   searchParams.pageNum = 1
   fetchData()
 }
 
-// 删除功能
+// 删除数据
 const doDelete = async (id: string) => {
   if (!id) {
     return
@@ -134,6 +139,7 @@ const doDelete = async (id: string) => {
   const res = await deleteUser({ id })
   if (res.data.code === 0) {
     message.success('删除成功')
+    // 刷新数据
     fetchData()
   } else {
     message.error('删除失败')
@@ -147,9 +153,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
 #userManagePage {
-  width: 1200px;
+  padding: 24px;
+  background: white;
+  margin-top: 16px;
 }
-
 </style>
